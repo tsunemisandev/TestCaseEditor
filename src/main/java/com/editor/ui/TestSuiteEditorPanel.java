@@ -6,6 +6,7 @@ import com.editor.model.ConditionColumn;
 import com.editor.model.Field;
 import com.editor.model.FieldLibrary;
 import com.editor.model.Group;
+import com.editor.model.Project;
 import com.editor.model.ResultColumn;
 import com.editor.model.TestCase;
 import com.editor.model.TestSuite;
@@ -22,7 +23,7 @@ import java.util.List;
 
 public class TestSuiteEditorPanel extends JPanel {
     private final TestSuite suite;
-    private final FieldLibrary library;
+    private final Project project;
     private final ExporterRegistry registry;
 
     private final JPanel conditionsPanel;
@@ -30,19 +31,17 @@ public class TestSuiteEditorPanel extends JPanel {
     private final JPanel gridContainer;
     private TestCaseGrid grid;
 
-    public TestSuiteEditorPanel(TestSuite suite, FieldLibrary library, ExporterRegistry registry) {
+    public TestSuiteEditorPanel(TestSuite suite, Project project, ExporterRegistry registry) {
         this.suite = suite;
-        this.library = library;
+        this.project = project;
         this.registry = registry;
         setLayout(new BorderLayout(0, 4));
         setBorder(new EmptyBorder(4, 4, 4, 4));
 
-        // Top section: suite name
         JLabel nameLabel = new JLabel(suite.getName());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 14f));
         nameLabel.setBorder(new EmptyBorder(0, 0, 4, 0));
 
-        // Config: conditions + results side by side
         conditionsPanel = new JPanel();
         conditionsPanel.setLayout(new BoxLayout(conditionsPanel, BoxLayout.Y_AXIS));
         conditionsPanel.setBorder(BorderFactory.createTitledBorder("Conditions"));
@@ -61,7 +60,6 @@ public class TestSuiteEditorPanel extends JPanel {
         topSection.setPreferredSize(new Dimension(0, 180));
         add(topSection, BorderLayout.NORTH);
 
-        // Bottom section: grid
         gridContainer = new JPanel(new BorderLayout());
         gridContainer.setBorder(BorderFactory.createTitledBorder("Test Cases"));
 
@@ -122,7 +120,7 @@ public class TestSuiteEditorPanel extends JPanel {
         for (ResultColumn col : suite.getResults()) {
             JPanel row = new JPanel(new BorderLayout());
             row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
-            row.add(new JLabel("  " + col.getName()), BorderLayout.CENTER);
+            row.add(new JLabel("  " + col), BorderLayout.CENTER);
             JButton removeBtn = smallRemoveButton();
             removeBtn.addActionListener(e -> {
                 suite.getResults().remove(col);
@@ -146,14 +144,14 @@ public class TestSuiteEditorPanel extends JPanel {
 
     private void addCondition() {
         List<ConditionColumn> available = new ArrayList<>();
-        for (Group group : library.getGroups()) {
+        for (Group group : project.getFieldLibrary().getGroups()) {
             for (Field field : group.getFields()) {
                 available.add(new ConditionColumn(group, field));
             }
         }
         if (available.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "No fields defined in the Field Library.",
+                    "No fields defined in the Field Library (Conditions tab).",
                     "No Fields", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -169,9 +167,24 @@ public class TestSuiteEditorPanel extends JPanel {
     }
 
     private void addResult() {
-        String name = JOptionPane.showInputDialog(this, "Result name:", "New Result", JOptionPane.PLAIN_MESSAGE);
-        if (name != null && !name.isBlank()) {
-            suite.getResults().add(new ResultColumn(name.trim()));
+        List<ResultColumn> available = new ArrayList<>();
+        for (Group group : project.getResultLibrary().getGroups()) {
+            for (Field field : group.getFields()) {
+                available.add(new ResultColumn(group, field));
+            }
+        }
+        if (available.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No fields defined in the Field Library (Results tab).",
+                    "No Fields", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        ResultColumn[] options = available.toArray(new ResultColumn[0]);
+        ResultColumn selected = (ResultColumn) JOptionPane.showInputDialog(
+                this, "Select result field:", "Add Result",
+                JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        if (selected != null) {
+            suite.getResults().add(selected);
             refreshResults();
             refreshGrid();
         }
@@ -187,7 +200,7 @@ public class TestSuiteEditorPanel extends JPanel {
     }
 
     private void export(Exporter exporter) {
-        String content = exporter.export(suite, library);
+        String content = exporter.export(suite, project);
         JFileChooser chooser = new JFileChooser();
         chooser.setSelectedFile(new File(suite.getName() + "." + exporter.fileExtension()));
         if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {

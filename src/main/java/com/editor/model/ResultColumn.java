@@ -1,20 +1,20 @@
 package com.editor.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ResultColumn {
-    private String name;
-    private final List<String> allowedValues = new ArrayList<>();
+    private final Group group;
+    private final Field field;
 
-    public ResultColumn(String name) {
-        this.name = name;
+    public ResultColumn(Group group, Field field) {
+        this.group = group;
+        this.field = field;
     }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public List<String> getAllowedValues() { return allowedValues; }
+    public Group getGroup() { return group; }
+    public Field getField() { return field; }
+    public String getName() { return field.getName(); }
 
     @Override
-    public String toString() { return name; }
+    public String toString() {
+        return group.getName() + " / " + field.getName();
+    }
 }

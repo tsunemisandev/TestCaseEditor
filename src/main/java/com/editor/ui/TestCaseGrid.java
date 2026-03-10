@@ -45,10 +45,10 @@ public class TestCaseGrid extends JScrollPane {
             for (int i = 0; i < vals.size(); i++) options[i + 1] = vals.get(i);
             return new DefaultCellEditor(new JComboBox<>(options));
         }
-        int resultIdx = col - 1 - condCount;
-        ResultColumn rc = suite.getResults().get(resultIdx);
-        if (!rc.getAllowedValues().isEmpty()) {
-            return new DefaultCellEditor(new JComboBox<>(rc.getAllowedValues().toArray(new String[0])));
+        ResultColumn rc = suite.getResults().get(col - 1 - condCount);
+        List<String> vals = rc.getField().getAllowedValues();
+        if (!vals.isEmpty()) {
+            return new DefaultCellEditor(new JComboBox<>(vals.toArray(new String[0])));
         }
         return new DefaultCellEditor(new JTextField());
     }
@@ -81,7 +81,7 @@ public class TestCaseGrid extends JScrollPane {
             if (col == 0) return "#";
             int condCount = suite.getConditions().size();
             if (col <= condCount) return suite.getConditions().get(col - 1).toString();
-            return suite.getResults().get(col - 1 - condCount).getName();
+            return suite.getResults().get(col - 1 - condCount).toString();
         }
 
         @Override
@@ -90,11 +90,9 @@ public class TestCaseGrid extends JScrollPane {
             if (col == 0) return "Case " + (row + 1);
             int condCount = suite.getConditions().size();
             if (col <= condCount) {
-                ConditionColumn cc = suite.getConditions().get(col - 1);
-                return tc.getConditionValues().getOrDefault(cc, "-");
+                return tc.getConditionValues().getOrDefault(suite.getConditions().get(col - 1), "-");
             }
-            ResultColumn rc = suite.getResults().get(col - 1 - condCount);
-            return tc.getResultValues().getOrDefault(rc, "");
+            return tc.getResultValues().getOrDefault(suite.getResults().get(col - 1 - condCount), "");
         }
 
         @Override

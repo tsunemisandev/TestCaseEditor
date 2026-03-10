@@ -13,10 +13,14 @@ public class MainWindow extends JFrame {
         setSize(1100, 720);
         setLocationRelativeTo(null);
 
-        JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Field Library", new FieldLibraryPanel(project.getFieldLibrary()));
-        tabs.addTab("Test Suites", new TestSuitesPanel(project, registry));
+        JTabbedPane libraryTabs = new JTabbedPane();
+        libraryTabs.addTab("Conditions", new FieldLibraryPanel(project.getFieldLibrary()));
+        libraryTabs.addTab("Results", new FieldLibraryPanel(project.getResultLibrary()));
 
-        add(tabs);
+        JTabbedPane mainTabs = new JTabbedPane();
+        mainTabs.addTab("Field Library", libraryTabs);
+        mainTabs.addTab("Test Suites", new TestSuitesPanel(project, registry));
+
+        add(mainTabs);
     }
 }

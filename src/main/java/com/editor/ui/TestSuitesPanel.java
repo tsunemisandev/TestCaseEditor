@@ -89,7 +89,7 @@ public class TestSuitesPanel extends JPanel {
     private void showEditor(TestSuite suite) {
         editorContainer.removeAll();
         if (suite != null) {
-            editorContainer.add(new TestSuiteEditorPanel(suite, project.getFieldLibrary(), registry), BorderLayout.CENTER);
+            editorContainer.add(new TestSuiteEditorPanel(suite, project, registry), BorderLayout.CENTER);
         } else {
             showPlaceholder();
         }
