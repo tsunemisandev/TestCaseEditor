@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+application {
+    mainClass = 'com.editor.Main'
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+repositories {}
+
+dependencies {}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.editor.Main'
+    }
+}
