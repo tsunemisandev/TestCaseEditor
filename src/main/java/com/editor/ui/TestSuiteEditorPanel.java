@@ -80,6 +80,14 @@ public class TestSuiteEditorPanel extends JPanel {
         refreshConditions();
         refreshResults();
         refreshGrid();
+
+        addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & java.awt.event.HierarchyEvent.SHOWING_CHANGED) != 0 && isShowing()) {
+                refreshConditions();
+                refreshResults();
+                if (grid != null) grid.refresh();
+            }
+        });
     }
 
     private void refreshConditions() {
@@ -194,6 +202,9 @@ public class TestSuiteEditorPanel extends JPanel {
         TestCase tc = new TestCase();
         for (ConditionColumn col : suite.getConditions()) {
             tc.getConditionValues().put(col, "-");
+        }
+        for (ResultColumn col : suite.getResults()) {
+            tc.getResultValues().put(col, "-");
         }
         suite.getCases().add(tc);
         grid.refresh();

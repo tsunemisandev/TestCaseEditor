@@ -47,10 +47,10 @@ public class TestCaseGrid extends JScrollPane {
         }
         ResultColumn rc = suite.getResults().get(col - 1 - condCount);
         List<String> vals = rc.getField().getAllowedValues();
-        if (!vals.isEmpty()) {
-            return new DefaultCellEditor(new JComboBox<>(vals.toArray(new String[0])));
-        }
-        return new DefaultCellEditor(new JTextField());
+        String[] options = new String[vals.size() + 1];
+        options[0] = "-";
+        for (int i = 0; i < vals.size(); i++) options[i + 1] = vals.get(i);
+        return new DefaultCellEditor(new JComboBox<>(options));
     }
 
     private void resizeColumns() {
